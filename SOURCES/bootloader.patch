@@ -1,0 +1,26 @@
+From 1e275a0da36595dd921732e0f60510171cdbe75c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mat=C4=9Bj=20T=C3=BD=C4=8D?= <matyc@redhat.com>
+Date: Tue, 15 Jan 2019 19:16:44 +0100
+Subject: [PATCH] Updated code to comply to the Bootloader proxy API.
+
+---
+ org_fedora_oscap/rule_handling.py | 4 ++--
+ tests/test_rule_handling.py       | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/org_fedora_oscap/rule_handling.py b/org_fedora_oscap/rule_handling.py
+index 738465f..f3fd057 100644
+--- a/org_fedora_oscap/rule_handling.py
++++ b/org_fedora_oscap/rule_handling.py
+@@ -716,9 +716,9 @@ def eval_rules(self, ksdata, storage, report_only=False):
+ 
+         bootloader_proxy = STORAGE.get_proxy(BOOTLOADER)
+ 
+-        if self._require_password and not bootloader_proxy.password_is_set:
++        if self._require_password and not bootloader_proxy.IsPasswordSet:
+             # TODO: Anaconda provides a way to set bootloader password:
+-            # bootloader_proxy.set_password(...)
++            # bootloader_proxy.SetEncryptedPassword(...)
+             # We don't support setting the bootloader password yet,
+             # but we shouldn't stop the installation, just because of that.
+             return [RuleMessage(self.__class__, common.MESSAGE_TYPE_WARNING,
