@@ -3,7 +3,7 @@
 
 Name:           oscap-anaconda-addon
 Version:        1.0
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        Anaconda addon integrating OpenSCAP to the installation process
 
 License:        GPLv2+
@@ -23,6 +23,7 @@ Patch4:		rootpw.patch
 Patch5:		bootloader.patch
 Patch6:		checksum.patch
 Patch7:		translate_spoke_title.patch
+Patch8:		do_not_use_capitals_for_the_spoke_title.patch
 
 BuildArch:      noarch
 BuildRequires:  gettext
@@ -48,13 +49,16 @@ content.
 %prep
 %setup -q -n %{name}-%{version}
 
-%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
+# As Patch1 translates the upsated string "_Security Policy" added by Patch8,
+# Patch1 needs to be aplied after Patch8
+%patch1 -p1
 
 %build
 
@@ -72,6 +76,10 @@ make install DESTDIR=%{buildroot}
 %doc COPYING ChangeLog README.md
 
 %changelog
+* Mon Sep 02 2019 Watson Sato <wsato@redhat.com> - 1.0-10
+- Do not use capital letters for spoke title: RHBZ#1744185
+- Updated translations
+
 * Wed Feb 13 2019 Matěj Týč <matyc@redhat.com> - 1.0-9
 - Updated translations: RHBZ#1645924
 
