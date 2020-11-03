@@ -1,0 +1,25 @@
+From 316d1fdd46e962c2eca32dde8b6d391286bd3d28 Mon Sep 17 00:00:00 2001
+From: Masahiro Matsuya <mmatsuya@redhat.com>
+Date: Fri, 7 Aug 2020 15:50:05 +0900
+Subject: [PATCH] avoiding UnicodeDecodeError in decode(). Output more errors
+ which starts with E: oscap
+
+---
+ org_fedora_oscap/common.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/org_fedora_oscap/common.py b/org_fedora_oscap/common.py
+index 9b4b7bf..45ce727 100644
+--- a/org_fedora_oscap/common.py
++++ b/org_fedora_oscap/common.py
+@@ -136,8 +136,9 @@ def execute(self, ** kwargs):
+ 
+         (stdout, stderr) = proc.communicate()
+         self.stdout = stdout.decode()
+-        self.stderr = stderr.decode()
++        self.stderr = stderr.decode(errors="replace")
+         self.messages = re.findall(r'OpenSCAP Error:.*', self.stderr)
++        self.messages = self.messages + re.findall(r'E: oscap:.*', self.stderr)
+ 
+         self.returncode = proc.returncode
+ 

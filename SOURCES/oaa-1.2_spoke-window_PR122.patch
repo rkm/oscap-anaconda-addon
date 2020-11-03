@@ -1,0 +1,41 @@
+From 943b2570c3196aec12a46d5b0e261f026ace0e86 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mat=C4=9Bj=20T=C3=BD=C4=8D?= <matyc@redhat.com>
+Date: Thu, 9 Jul 2020 17:15:11 +0200
+Subject: [PATCH] Changed the spoke label back to uppercase.
+
+The spoke title which is defined in the Python code and visible in the hub
+should have capitalization that respects the local language convention.
+However, the much less visible spoke label that is defined in the glade file
+should be uppercase, and so should be translations.
+---
+ org_fedora_oscap/gui/spokes/oscap.glade | 2 +-
+ org_fedora_oscap/gui/spokes/oscap.py    | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/org_fedora_oscap/gui/spokes/oscap.glade b/org_fedora_oscap/gui/spokes/oscap.glade
+index 1adcfcf..1fd2664 100644
+--- a/org_fedora_oscap/gui/spokes/oscap.glade
++++ b/org_fedora_oscap/gui/spokes/oscap.glade
+@@ -37,7 +37,7 @@
+     <property name="can_focus">False</property>
+     <property name="hexpand">True</property>
+     <property name="vexpand">True</property>
+-    <property name="window_name" translatable="yes">Security Policy</property>
++    <property name="window_name" translatable="yes">SECURITY POLICY</property>
+     <signal name="button-clicked" handler="on_back_clicked" swapped="no"/>
+     <child internal-child="main_box">
+       <object class="GtkBox" id="AnacondaSpokeWindow-main_box1">
+diff --git a/org_fedora_oscap/gui/spokes/oscap.py b/org_fedora_oscap/gui/spokes/oscap.py
+index f21f7d3..b9fcd31 100644
+--- a/org_fedora_oscap/gui/spokes/oscap.py
++++ b/org_fedora_oscap/gui/spokes/oscap.py
+@@ -196,6 +196,9 @@ class OSCAPSpoke(NormalSpoke):
+ 
+     # title of the spoke (will be displayed on the hub)
+     title = N_("_Security Policy")
++    # The string "SECURITY POLICY" in oscap.glade is meant to be uppercase,
++    # as it is displayed inside the spoke as the spoke label,
++    # and spoke labels are all uppercase by a convention.
+ 
+     # methods defined by API and helper methods #
+     def __init__(self, data, storage, payload):

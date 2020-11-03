@@ -1,0 +1,101 @@
+From 2646bb88746aa7b1abc715b40fa0a07a865d9576 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mat=C4=9Bj=20T=C3=BD=C4=8D?= <matyc@redhat.com>
+Date: Wed, 17 Jun 2020 14:30:52 +0200
+Subject: [PATCH 1/3] Improve handling of languages.
+
+- fix the Makefile so translations are copied to the right directory in the image
+- allow generation of update image with or without translations
+- regenerate the create_update_image script with latest argbash
+---
+ Makefile               |  6 ++-
+ create_update_image.sh | 86 ++++++++++++++++++++++++++++--------------
+ 2 files changed, 63 insertions(+), 29 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 2c2059c..dc8e9a0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,6 +6,8 @@ ADDON = org_fedora_oscap
+ TESTS = tests \
+ 	testing_files
+ 
++DEFAULT_INSTALL_OF_PO_FILES ?= yes
++
+ OSVERSION := $(shell grep -o " [0-9]\{1,\}" /etc/redhat-release | sed "s/ //g")
+ ifeq ($(OSVERSION),7)
+ 	PYVERSION = ""
+@@ -37,7 +39,9 @@ NUM_PROCS = $$(getconf _NPROCESSORS_ONLN)
+ install:
+ 	mkdir -p $(DESTDIR)$(ADDONDIR)
+ 	cp -rv $(ADDON) $(DESTDIR)$(ADDONDIR)
++ifeq ($(DEFAULT_INSTALL_OF_PO_FILES),yes)
+ 	$(MAKE) install-po-files
++endif
+ 
+ uninstall:
+ 	rm -rfv $(DESTDIR)$(ADDONDIR)
+@@ -78,7 +82,7 @@ push-pot: potfile
+ 	zanata push $(ZANATA_PUSH_ARGS)
+ 
+ install-po-files:
+-	$(MAKE) -C po install
++	$(MAKE) -C po install RPM_BUILD_ROOT=$(DESTDIR)
+ 
+ test:
+ 	@echo "***Running pylint$(PYVERSION) checks***"
+From 7434500bcd94c2c53d61c84a7364493372f7e053 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mat=C4=9Bj=20T=C3=BD=C4=8D?= <matyc@redhat.com>
+Date: Wed, 17 Jun 2020 14:32:25 +0200
+Subject: [PATCH 2/3] Dont use capital letters for the spoke title.
+
+---
+ org_fedora_oscap/gui/spokes/oscap.glade | 2 +-
+ po/oscap-anaconda-addon.pot             | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/org_fedora_oscap/gui/spokes/oscap.glade b/org_fedora_oscap/gui/spokes/oscap.glade
+index e9e2fc0..e8516c0 100644
+--- a/org_fedora_oscap/gui/spokes/oscap.glade
++++ b/org_fedora_oscap/gui/spokes/oscap.glade
+@@ -37,7 +37,7 @@
+     <property name="can_focus">False</property>
+     <property name="hexpand">True</property>
+     <property name="vexpand">True</property>
+-    <property name="window_name" translatable="yes">SECURITY POLICY</property>
++    <property name="window_name" translatable="yes">Security Policy</property>
+     <signal name="button-clicked" handler="on_back_clicked" swapped="no"/>
+     <child internal-child="main_box">
+       <object class="GtkBox" id="AnacondaSpokeWindow-main_box1">
+
+From 00c3dd557881def88c2898fa6ced17dddfef5213 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mat=C4=9Bj=20T=C3=BD=C4=8D?= <matyc@redhat.com>
+Date: Thu, 18 Jun 2020 15:12:40 +0200
+Subject: [PATCH 3/3] Changed URI back to URL in order not to mess with
+ translations.
+
+The PR #112 marked this string as translatable, and changed it in the process.
+However, the string is already present elsewhere in the source code, so this move
+messed things up for translators.
+
+This change reverts the URL->URI change, and leaves the GUI string "translatable",
+as there is no way how to record the reason for this decision, so the situation doesn't repeat again.
+As a result, it is now the job of the translation framework
+to deal with the duplication gracefully.
+---
+ org_fedora_oscap/gui/spokes/oscap.glade | 2 +-
+ po/oscap-anaconda-addon.pot             | 9 ++-------
+ 2 files changed, 3 insertions(+), 8 deletions(-)
+
+diff --git a/org_fedora_oscap/gui/spokes/oscap.glade b/org_fedora_oscap/gui/spokes/oscap.glade
+index e8516c0..1adcfcf 100644
+--- a/org_fedora_oscap/gui/spokes/oscap.glade
++++ b/org_fedora_oscap/gui/spokes/oscap.glade
+@@ -446,7 +446,7 @@
+                               <object class="GtkLabel" id="noContentLabel">
+                                 <property name="visible">True</property>
+                                 <property name="can_focus">False</property>
+-                                <property name="label" translatable="yes">No content found. Please enter data stream content or archive URI below:</property>
++                                <property name="label" translatable="yes">No content found. Please enter data stream content or archive URL below:</property>
+                                 <property name="wrap">True</property>
+                                 <property name="xalign">0</property>
+                               </object>

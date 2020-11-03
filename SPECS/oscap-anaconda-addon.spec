@@ -2,8 +2,8 @@
 %global _default_patch_flags --no-backup-if-mismatch
 
 Name:           oscap-anaconda-addon
-Version:        1.0
-Release:        10%{?dist}
+Version:        1.1.1
+Release:        5%{?dist}
 Summary:        Anaconda addon integrating OpenSCAP to the installation process
 
 License:        GPLv2+
@@ -16,25 +16,22 @@ URL:            https://github.com/OpenSCAP/oscap-anaconda-addon
 # or via direct git checkout:
 # git clone https://github.com/OpenSCAP/oscap-anaconda-addon.git
 Source0:        %{name}-%{version}.tar.gz
+
+# Let the Patch1 be reserved for translations patches
 Patch1: 	lang.patch
-Patch2: 	oaa-api-update.patch
-Patch3:		help_id.patch
-Patch4:		rootpw.patch
-Patch5:		bootloader.patch
-Patch6:		checksum.patch
-Patch7:		translate_spoke_title.patch
-Patch8:		do_not_use_capitals_for_the_spoke_title.patch
+Patch2: 	oaa-1.2_warn-xorg.patch
+Patch3: 	oaa-1.2_warn-nfs-utils.patch
+Patch4: 	oaa-1.2_lang-streamline.patch
+Patch5: 	oaa-1.2_spoke-window_PR122.patch
+Patch6: 	oaa-1.2-unicode_issues_PR124.patch
 
 BuildArch:      noarch
 BuildRequires:  gettext
 BuildRequires:	python3-devel
 BuildRequires:  python3-pycurl
-#BuildRequires:  python-mock
-#BuildRequires:  python-nose
-#BuildRequires:  python3-cpio
 BuildRequires:  openscap openscap-utils openscap-python3
-BuildRequires:  anaconda-core >= 28.22.10
-Requires:       anaconda-core >= 28.22.10
+BuildRequires:  anaconda-core >= 33
+Requires:       anaconda-core >= 33
 Requires:       python3-cpio
 Requires:       python3-pycurl
 Requires:       python3-kickstart
@@ -54,11 +51,14 @@ content.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
-%patch8 -p1
-# As Patch1 translates the upsated string "_Security Policy" added by Patch8,
-# Patch1 needs to be aplied after Patch8
+
+# As patches may translates the strings that are updated by later patches,
+# Patch1 needs to be aplied last.
 %patch1 -p1
+# NOTE CONCERNING TRANSLATION PATCHES
+# When preparing translation patches, don't consider that some languages are unsupported -
+# we aim to include all applicable translation texts to the appropriate patch.
+# This has consulted with ljanda@redhat.com, and we basically follow the existing practice of the Anaconda project we integrate into.
 
 %build
 
@@ -76,6 +76,25 @@ make install DESTDIR=%{buildroot}
 %doc COPYING ChangeLog README.md
 
 %changelog
+* Tue Aug 18 2020 Matěj Týč <matyc@redhat.com> - 1.1.1-5
+- Fixed issues with encountering filenames with weird encoding during scans - rhbz#1867960
+
+* Thu Jul 09 2020 Matěj Týč <matyc@redhat.com> - 1.1.1-4
+- Fixed spoke window text: RHBZ#1855041
+
+* Fri Jun 26 2020 Matěj Týč <matyc@redhat.com> - 1.1.1-3
+- Updated translations: RHBZ#1820557
+
+* Mon Jun 22 2020 Matěj Týč <matyc@redhat.com> - 1.1.1-2
+- Fixed issues addressing combination of profiles and GUI-based software selections: RHBZ#1843932, RHBZ#1787156
+- Improved handling of languages, capitalization: RHBZ#1696278
+- Updated translations: RHBZ#1820557
+
+* Tue Jun 02 2020 Matěj Týč <matyc@redhat.com> - 1.1.1-1
+- Rebase to upstream 1.1.1
+- This OAA is compatible with the RHEL 8.3 Anaconda: RHBZ#1696278
+- The UX has been improved: RHBZ#1781790
+
 * Mon Sep 02 2019 Watson Sato <wsato@redhat.com> - 1.0-10
 - Do not use capital letters for spoke title: RHBZ#1744185
 - Updated translations

@@ -1,0 +1,82 @@
+From 6c285154723f618675c3a216ce84b480d770c10d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mat=C4=9Bj=20T=C3=BD=C4=8D?= <matyc@redhat.com>
+Date: Tue, 9 Jun 2020 16:56:32 +0200
+Subject: [PATCH 1/2] Address incompatible profiles and software selections.
+
+This change introduces a mechanism that allows to vet packages marked for removal.
+Such package can now have a record in the ESSENTIAL_PACKAGES dict,
+that define whether the package is essential => cant be removed
+based on the environment and groups selected in the Software Selection Anaconda spoke.
+
+In case when one first selects the profile and then changes the Software Selection
+to an incompatible setting, the Selection spoke will raise an error, as it already
+tries to apply the blacklist with its environment/groups.
+---
+ org_fedora_oscap/rule_handling.py | 38 +++++++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 5 deletions(-)
+
+diff --git a/org_fedora_oscap/rule_handling.py b/org_fedora_oscap/rule_handling.py
+index cd67822..3728f89 100644
+--- a/org_fedora_oscap/rule_handling.py
++++ b/org_fedora_oscap/rule_handling.py
+@@ -40,6 +40,12 @@
+ __all__ = ["RuleData"]
+ 
+ 
++ESSENTIAL_PACKAGES = {
++    "xorg-x11-server-common": {
++        "env": ["graphical-server-environment", "workstation-product-environment"],
++    }
++}
++
+ log = logging.getLogger("anaconda")
+ 
+ _ = common._
+@@ -627,6 +633,20 @@ def __str__(self):
+ 
+         return ret
+ 
++    def _package_is_essential(self, package_name, ksdata_packages):
++        if package_name not in ESSENTIAL_PACKAGES:
++            return False
++        if package_name in ksdata_packages.packageList:
++            return True
++        selected_install_env = ksdata_packages.environment
++        if selected_install_env in ESSENTIAL_PACKAGES[package_name].get("env"):
++            return True
++        selected_install_groups_names = {g.name for g in ksdata_packages.groupList}
++        for g in ESSENTIAL_PACKAGES[package_name].get("groups", []):
++            if g in selected_install_groups_names:
++                return True
++        return False
++
+     def eval_rules(self, ksdata, storage, report_only=False):
+         """:see: RuleHandler.eval_rules"""
+ 
+@@ -655,13 +675,21 @@ def eval_rules(self, ksdata, storage, report_only=False):
+                                         common.MESSAGE_TYPE_INFO, msg))
+ 
+         # now do the same for the packages that should be excluded
+-
+         # add messages for the already excluded packages
+         for pkg in self._removed_pkgs:
+-            msg = _("package '%s' has been added to the list of excluded "
+-                    "packages" % pkg)
+-            messages.append(RuleMessage(self.__class__,
+-                                        common.MESSAGE_TYPE_INFO, msg))
++            if self._package_is_essential(pkg, ksdata.packages):
++                msg = _(
++                    "package '{package}' has been added to the list "
++                    "of excluded packages, but it can't be removed "
++                    "from the current software selection without breaking the installation."
++                    .format(package=pkg))
++                messages.append(RuleMessage(self.__class__,
++                                            common.MESSAGE_TYPE_FATAL, msg))
++            else:
++                msg = _("package '%s' has been added to the list of excluded "
++                        "packages" % pkg)
++                messages.append(RuleMessage(self.__class__,
++                                            common.MESSAGE_TYPE_INFO, msg))
+ 
+         # packages, that should be added
+         packages_to_remove = (pkg for pkg in self._remove_pkgs

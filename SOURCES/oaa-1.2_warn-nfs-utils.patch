@@ -1,0 +1,25 @@
+From 9e514460c584666308967d611b26ea2927ea0535 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mat=C4=9Bj=20T=C3=BD=C4=8D?= <matyc@redhat.com>
+Date: Thu, 18 Jun 2020 11:28:15 +0200
+Subject: [PATCH] Added nfs-utils as an essential package for GUI envs.
+
+---
+ org_fedora_oscap/rule_handling.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/org_fedora_oscap/rule_handling.py b/org_fedora_oscap/rule_handling.py
+index 3728f89..6a3a04e 100644
+--- a/org_fedora_oscap/rule_handling.py
++++ b/org_fedora_oscap/rule_handling.py
+@@ -43,7 +43,10 @@
+ ESSENTIAL_PACKAGES = {
+     "xorg-x11-server-common": {
+         "env": ["graphical-server-environment", "workstation-product-environment"],
+-    }
++    },
++    "nfs-utils": {
++        "env": ["graphical-server-environment", "workstation-product-environment"],
++    },
+ }
+ 
+ log = logging.getLogger("anaconda")
