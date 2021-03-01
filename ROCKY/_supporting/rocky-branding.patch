@@ -1,0 +1,26 @@
+diff --git a/SOURCES/oaa-1.2_lang-streamline.patch b/SOURCES/oaa-1.2_lang-streamline.patch
+index 35e4e6e..14b4412 100644
+--- a/SOURCES/oaa-1.2_lang-streamline.patch
++++ b/SOURCES/oaa-1.2_lang-streamline.patch
+@@ -21,7 +21,7 @@ index 2c2059c..dc8e9a0 100644
+  
+ +DEFAULT_INSTALL_OF_PO_FILES ?= yes
+ +
+- OSVERSION := $(shell grep -o " [0-9]\{1,\}" /etc/redhat-release | sed "s/ //g")
++ OSVERSION := $(shell grep -o " [0-9]\{1,\}" /etc/rocky-release | sed "s/ //g")
+  ifeq ($(OSVERSION),7)
+  	PYVERSION = ""
+ @@ -37,7 +39,9 @@ NUM_PROCS = $$(getconf _NPROCESSORS_ONLN)
+diff --git a/SPECS/oscap-anaconda-addon.spec b/SPECS/oscap-anaconda-addon.spec
+index 6c6daa5..28c7622 100644
+--- a/SPECS/oscap-anaconda-addon.spec
++++ b/SPECS/oscap-anaconda-addon.spec
+@@ -9,7 +9,7 @@ Summary:        Anaconda addon integrating OpenSCAP to the installation process
+ License:        GPLv2+
+ URL:            https://github.com/OpenSCAP/oscap-anaconda-addon
+ 
+-# This is a Red Hat maintained package which is specific to
++# This is a Rocky maintained package which is specific to
+ # our distribution.
+ #
+ # The source is thus available only from within this SRPM
