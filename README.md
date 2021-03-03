@@ -1,3 +1,5 @@
+NOTE: Merged into https://git.rockylinux.org/staging/patch/oscap-anaconda-addon
+
 # oscap-anaconda-addon
 
 ## Debranding TODO
